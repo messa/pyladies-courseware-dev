@@ -1,4 +1,5 @@
 from datetime import date
+from logging import INFO, WARNING, getLogger
 
 from cw_backend.util import yaml_dump, yaml_load
 from cw_backend.courses import load_course, load_courses
@@ -15,6 +16,8 @@ def test_parse_date():
 
 
 def test_load_sample_course(data_dir):
+    getLogger('cw_backend.courses.courses').setLevel(INFO)
+    getLogger('cw_backend.courses.session').setLevel(WARNING)
     course = load_course(data_dir / 'sample_course/course.yaml')
     out = yaml_dump({'course_detail': course.export(sessions=True, tasks=True)})
     out_path = data_dir / 'sample_course/expected_export_detail.yaml'

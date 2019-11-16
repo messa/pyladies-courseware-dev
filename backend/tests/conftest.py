@@ -1,14 +1,23 @@
+from contextlib import asynccontextmanager
 from itertools import count
+import logging
 import os
 from pathlib import Path
 from pytest import fixture, skip
 
 from cw_backend.model import Model
+from cw_backend.util import SQLiteMongoDBSimulator
 
 
 here = Path(__file__).resolve().parent
 
 on_CI = bool(os.environ.get('CI'))
+
+logging.basicConfig(
+    format='%(asctime)s %(name)-26s %(levelname)5s: %(message)s',
+    level=logging.DEBUG)
+
+logging.getLogger('MARKDOWN').setLevel(logging.INFO)
 
 
 @fixture
@@ -30,8 +39,8 @@ def temp_dir(tmpdir):
 mongodb_is_running = None
 
 
-@fixture
-async def db():
+@asynccontextmanager
+async def _db_mongodb():
     global mongodb_is_running
     from motor.motor_asyncio import AsyncIOMotorClient
     from pymongo.errors import ServerSelectionTimeoutError
@@ -50,8 +59,27 @@ async def db():
         assert mongodb_is_running is None
         mongodb_is_running = False
         skip(f'MongoDB is not running (ServerSelectionTimeoutError: {e})')
-    yield db
-    await client.drop_database(db.name)
+    try:
+        yield db
+    finally:
+        await client.drop_database(db.name)
+
+
+@asynccontextmanager
+async def _db_sqlite():
+    yield SQLiteMongoDBSimulator(':memory:')
+
+
+@fixture(params=['sqlite', 'mongodb'])
+async def db(request):
+    if request.param == 'sqlite':
+        async with _db_sqlite() as db:
+            yield db
+    elif request.param == 'mongodb':
+        async with _db_mongodb() as db:
+            yield db
+    else:
+        raise Exception('Unknown value of request.param')
 
 
 @fixture
