@@ -19,12 +19,14 @@ export default class TaskSubmission extends React.Component {
     }
   }
 
-  handleSubmitClick = () => {
+  handleSubmitClick = (event) => {
+    event.preventDefault()
     const { code } = this.state
     this.props.onSubmit({ code })
   }
 
-  handleCancelClick = () => {
+  handleCancelClick = (event) => {
+    event.preventDefault()
     this.props.onCancel()
   }
 
@@ -32,14 +34,24 @@ export default class TaskSubmission extends React.Component {
     const { loading } = this.props
     const { code } = this.state
     return (
-      <div className='TaskSubmitForm'>
+      <form className='TaskSubmitForm' onSubmit={this.handleSubmitClick}>
         <CodeEditor
           value={code}
           onValueChange={this.handleCodeChange}
           disabled={loading}
         />
         <div style={{ marginTop: 10 }}>
+          <label>
+            Pokud chcete, můžete nahrát soubor:{' '}
+          </label>
+          <input
+            type='file'
+            multiple
+            />
+        </div>
+        <div style={{ marginTop: 10 }}>
           <Button
+            type='submit'
             size='small'
             primary
             icon='send'
@@ -58,7 +70,7 @@ export default class TaskSubmission extends React.Component {
             disabled={loading}
           />
         </div>
-      </div>
+      </form>
     )
   }
 
