@@ -48,12 +48,12 @@ export default class TaskReview extends React.Component {
   }
 
   async loadData(anchorCheck = false) {
-    const { courseId, sessionSlug, taskId, reviewUserId } = this.props
+    const { courseId, sessionSlug, taskItemId, reviewUserId } = this.props
     try {
       const url = '/api/tasks/solution' +
         `?course_id=${encodeURIComponent(courseId)}` +
         `&session_slug=${encodeURIComponent(sessionSlug)}` +
-        `&task_id=${encodeURIComponent(taskId)}` +
+        `&task_id=${encodeURIComponent(taskItemId)}` +
         `&user_id=${encodeURIComponent(reviewUserId)}`
       const r = await fetch(url, {
         credentials: 'same-origin',
@@ -69,8 +69,8 @@ export default class TaskReview extends React.Component {
         loading: false,
         loadError: null,
         reviewUserId,
-        taskSolution: task_solution,
-        comments: comments,
+        taskSolution,
+        comments,
       })
       if (anchorCheck) {
         holdAnchor()
@@ -170,12 +170,15 @@ export default class TaskReview extends React.Component {
 
   render() {
     const { loading, loadError, taskSolution, savingMarkedAsSolved, comments, showAddComment } = this.state
-    const { taskSubmit } = this.props
+    const { taskSubmit, title } = this.props
     return (
       <div className='TaskReview'>
         {taskSubmit ? (
           <>
-            <h4>Odevzdané řešení <TaskStatus taskSolution={taskSolution} /></h4>
+            <h4>
+                {title ? title + ' ' : 'Odevzdané řešení'}
+                <TaskStatus taskSolution={taskSolution} />
+            </h4>
             <LoadingMessage active={loading} />
             <LoadErrorMessage active={loadError} message={loadError} />
             {(this.state.reviewUserId === this.props.reviewUserId) && (
@@ -227,6 +230,7 @@ export default class TaskReview extends React.Component {
                     addComment={showAddComment}
                     onAddCommentCancel={this.handleAddCommentCancel}
                     onAddCommentSubmit={this.handleAddCommentSubmit}
+                    taskSolution={taskSolution}
                   />
                 </>
               )

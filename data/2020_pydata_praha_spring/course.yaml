@@ -1,0 +1,36 @@
+id: pydata-2020-praha-jaro
+naucse_api_url: https://naucse.python.cz/v0/2020/pydata-praha-jaro.json
+tasks_by_lesson_slug:
+
+  "pydata/notebook":
+  - file: tasks/eda_1.yaml
+  "pydata/pandas_types":
+  - file: tasks/eda_2.yaml
+  "pydata/eda-univariate-timeseries":
+  - file: tasks/eda_3.yaml
+  "pydata/pandas_correlations":
+  - file: tasks/eda_4.yaml
+  "pydata/pandas_groupby":
+  - file: tasks/eda_5.yaml
+  "pydata/databases":
+  - file: tasks/databases.yaml
+  "pydata/intro_regression":
+  - file: tasks/ml_1.yaml
+  "pydata/pca":
+  - file: tasks/pca.yaml
+  "pydata/dashboards":
+  - file: tasks/dashboards.yaml
+
+sessions:
+- slug: "pydata_extra1"
+  title: "Virtuální hodina"
+  date: 2020-03-19
+  tasks:
+  - file: tasks/extra1.yaml
+
+- slug: "data_projects_definition"
+  title: "Definování projektů v datové analytice"
+  date: 2020-05-21
+  tasks:
+  - file: tasks/extra2.yaml
+

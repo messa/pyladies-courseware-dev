@@ -40,6 +40,7 @@ tasks:
         assert je_v_seznamu(["užovka", "koroptev", "mravenec", "vlk", "plch"], "hroch") == False, \
             'Při zadání jiného seznamu než ["pes\", "kočka\", "králík\", "had"] nastal problém.Zkus zařídit, aby funkce dokázala pracovat i s jinými seznamy.'
 
+  mandatory: true
 
 - id: handout6_04
   markdown: |
@@ -77,7 +78,6 @@ tasks:
         ), \
         "Pokud ti předchozí test prošel, a tento ne, zkus upravit svou funkci tak, aby fungovala " \
         "i pro jiné seznamy, než seznam z úkolu 0."
-
 
 - id: handout6_01
   markdown: |
@@ -171,6 +171,7 @@ tasks:
 - id: handout6_09
   markdown: |
     Napiš funkci, která převede římské číslice na číslo (`int`).
+
     _Aby ti fungovaly připravené testy, pojmenuj funkci `rimska_na_int`._
     
   tests: |
@@ -199,7 +200,7 @@ tasks:
 
 - section:
     markdown: |
-        A nakonec projekt na přemýšlení.
+      A nakonec projekt na přemýšlení.
 
 - id: handout6_17
   markdown: |
