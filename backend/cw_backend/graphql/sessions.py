@@ -112,6 +112,7 @@ Session = GraphQLObjectType(
         'id': GraphQLField(
             GraphQLNonNull(GraphQLID),
             resolve=lambda s, _: f'Session:{s.course_id}:{s.slug}'),
+        'courseId': GraphQLField(GraphQLString, resolve=lambda s, _: s.course_id),
         'slug': GraphQLField(
             GraphQLString),
         'date': GraphQLField(

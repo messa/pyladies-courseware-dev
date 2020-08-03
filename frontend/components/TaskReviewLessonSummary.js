@@ -1,150 +1,178 @@
 import React from 'react'
 import Link from 'next/link'
 import { Table, Message } from 'semantic-ui-react'
+import { createFragmentContainer, graphql } from 'react-relay'
 
-export default class TaskReviewLessonSummary extends React.Component {
+// async function sleep(ms) {
+//   return new Promise(resolve => setTimeout(resolve, ms))
+// }
 
-  state = {
-    loading: true,
-    loadError: null,
-    students: null,
-    taskSolutionsByUserAndTaskId: null,
-  }
+// export default class TaskReviewLessonSummary extends React.Component {
 
-  componentDidMount() {
-    this.loadData()
-    if (!this.loadIntervalId) {
-      this.loadIntervalId = setInterval(() => this.loadData(), 20 * 1000)
-    }
-  }
+//   state = {
+//     loading: true,
+//     loadError: null,
+//     students: null,
+//     taskSolutionsByUserAndTaskId: null,
+//   }
 
-  componentWillUnmount() {
-    if (this.loadIntervalId) {
-      clearInterval(this.loadIntervalId)
-      this.loadIntervalId = null
-    }
-  }
+//   componentDidMount() {
+//     this.loadData()
+//     if (!this.loadIntervalId) {
+//       this.loadIntervalId = setInterval(() => this.loadData(), 20 * 1000)
+//     }
+//   }
 
-  async loadData() {
-    const { courseId, tasks } = this.props
-    const taskIds = tasks.map(t => t.id)
-    try {
-      const url = '/api/tasks/lesson-solutions' +
-        `?course_id=${encodeURIComponent(courseId)}` +
-        `&task_ids=${encodeURIComponent(JSON.stringify(taskIds))}`
-      const r = await fetch(url, {
-        credentials: 'same-origin',
-        headers: {
-          'Accept': 'application/json',
-        }
-      })
-      const { task_solutions, students } = await r.json()
-      this.setState({
-        loading: false,
-        loadError: null,
-        students: students.sort((a, b) => a.name.localeCompare(b.name)),
-        taskSolutionsByUserAndTaskId: new Map(
-          task_solutions.map(ts => ([`${ts.user_id}|${ts.task_id}`, ts]))),
-      })
-    } catch (err) {
-      this.setState({
-        loading: false,
-        loadError: err.toString(),
-      })
-    }
-  }
+//   componentWillUnmount() {
+//     if (this.loadIntervalId) {
+//       clearInterval(this.loadIntervalId)
+//       this.loadIntervalId = null
+//     }
+//   }
 
-  render() {
-    const { loading, loadError, students, taskSolutionsByUserAndTaskId } = this.state
-    const { courseId, sessionSlug, tasks, reviewUserId, reviewTaskId } = this.props
-    return (
-      <div>
-        {loading && (<p><em>Loading</em></p>)}
-        {loadError && (
-          <Message
-            negative
-            header='Load failed'
-            content={loadError}
-          />
-        )}
+//   async loadData() {
+//     const { courseId, tasks } = this.props
+//     const taskIds = tasks.map(t => t.id)
+//     try {
+//       await sleep(3 * 1000)
+//       const url = '/api/tasks/lesson-solutions' +
+//         `?course_id=${encodeURIComponent(courseId)}` +
+//         `&task_ids=${encodeURIComponent(JSON.stringify(taskIds))}`
+//       const r = await fetch(url, {
+//         credentials: 'same-origin',
+//         headers: {
+//           'Accept': 'application/json',
+//         }
+//       })
+//       const { task_solutions, students } = await r.json()
+//       this.setState({
+//         loading: false,
+//         loadError: null,
+//         students: students.sort((a, b) => a.name.localeCompare(b.name)),
+//         taskSolutionsByUserAndTaskId: new Map(
+//           task_solutions.map(ts => ([`${ts.user_id}|${ts.task_id}`, ts]))),
+//       })
+//     } catch (err) {
+//       this.setState({
+//         loading: false,
+//         loadError: err.toString(),
+//       })
+//     }
+//   }
 
-        {students && (
-          <div style={{ overflowX: 'auto' }}>
-            <TaskReviewLessonSummaryTable
-              courseId={courseId}
-              sessionSlug={sessionSlug}
-              students={students}
-              tasks={tasks.filter(t => t.submit)}
-              taskSolutionsByUserAndTaskId={taskSolutionsByUserAndTaskId}
-              reviewUserId={reviewUserId}
-              reviewTaskId={reviewTaskId}
-            />
-          </div>
-        )}
-        <pre className='debug' style={{ display: 'none' }}>
-          TaskReviewLessonSummary {JSON.stringify({ props: this.props, state: this.state }, null, 2)}
-        </pre>
-      </div>
-    )
-  }
+//   render() {
+//     const { loading, loadError, students, taskSolutionsByUserAndTaskId } = this.state
+//     const { courseId, sessionSlug, tasks, reviewUserId, reviewTaskId } = this.props
+//     return (
+//       <div>
+//         {loading && (<p><em>Loading</em></p>)}
+//         {loadError && (
+//           <Message
+//             negative
+//             header='Load failed'
+//             content={loadError}
+//           />
+//         )}
+
+//         {students && (
+//           <div style={{ overflowX: 'auto' }}>
+//             <TaskReviewLessonSummaryTable
+//               courseId={courseId}
+//               sessionSlug={sessionSlug}
+//               students={students}
+//               tasks={tasks.filter(t => t.submit)}
+//               taskSolutionsByUserAndTaskId={taskSolutionsByUserAndTaskId}
+//               reviewUserId={reviewUserId}
+//               reviewTaskId={reviewTaskId}
+//             />
+//           </div>
+//         )}
+//         <pre className='debug' style={{ display: 'none' }}>
+//           TaskReviewLessonSummary {JSON.stringify({ props: this.props, state: this.state }, null, 2)}
+//         </pre>
+//       </div>
+//     )
+//   }
+// }
+
+function TaskReviewLessonSummary({ session }) {
+  const tasks = []
+  const students = []
+  return (
+    // courseId, sessionSlug, students, tasks, taskSolutionsByUserAndTaskId, reviewUserId, reviewTaskId
+    <Table basic celled size='small' compact unstackable>
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell>Jméno</Table.HeaderCell>
+          {tasks.map((task, i) => {
+              const href = {
+                  pathname: '/task',
+                  query: {
+                      course: session.courseId,
+                      session: session.slug,
+                      reviewTaskId: task.number,
+                  },
+                  hash: 'tasks'
+              };
+            return (
+              <Table.HeaderCell key={i}>
+                  <Link href={href}><a>{task.number}</a></Link>
+              </Table.HeaderCell>
+            );
+          })}
+        </Table.Row>
+      </Table.Header>
+
+      <Table.Body>
+        {students.map(student => (
+          <Table.Row key={student.id} active={reviewUserId === student.id}>
+            <Table.Cell>
+              {reviewUserId === student.id ? (
+                <strong>
+                  {student.name}
+                </strong>
+              ) : (
+                <>
+                  {student.name}
+                </>
+              )}
+            </Table.Cell>
+            {tasks.map((task, i) => (
+              <Table.Cell key={i} active={reviewTaskId === task.id}>
+                <TaskStatus
+                  courseId={courseId}
+                  sessionSlug={sessionSlug}
+                  taskSolution={taskSolutionsByUserAndTaskId.get(`${student.id}|${task.id}`)}
+                  taskId={task.id}
+                />
+              </Table.Cell>
+            ))}
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  )
 }
 
-const TaskReviewLessonSummaryTable = ({ courseId, sessionSlug, students, tasks, taskSolutionsByUserAndTaskId, reviewUserId, reviewTaskId }) => (
-  <Table basic celled size='small' compact unstackable>
-    <Table.Header>
-      <Table.Row>
-        <Table.HeaderCell>Jméno</Table.HeaderCell>
-        {tasks.map((task, i) => {
-            const href = {
-                pathname: '/task',
-                query: {
-                    course: courseId,
-                    session: sessionSlug,
-                    reviewTaskId: task.number,
-                },
-                hash: 'tasks'
-            };
-          return (
-            <Table.HeaderCell key={i}>
-                <Link href={href}><a>{task.number}</a></Link>
-            </Table.HeaderCell>
-          );
-        })}
-      </Table.Row>
-    </Table.Header>
+export default createFragmentContainer(TaskReviewLessonSummary, {
+  session: graphql`
+    fragment TaskReviewLessonSummary_session on Session {
+      id
+      courseId
+      slug
+      taskItems {
+        taskItemId
+        number
+        submit
+        allSolution {
+          lastAction
+        }
+      }
+    }
+  `
+})
 
-    <Table.Body>
-      {students.map(student => (
-        <Table.Row key={student.id} active={reviewUserId === student.id}>
-          <Table.Cell>
-            {reviewUserId === student.id ? (
-              <strong>
-                {student.name}
-              </strong>
-            ) : (
-              <>
-                {student.name}
-              </>
-            )}
-          </Table.Cell>
-          {tasks.map((task, i) => (
-            <Table.Cell key={i} active={reviewTaskId === task.id}>
-              <TaskStatus
-                courseId={courseId}
-                sessionSlug={sessionSlug}
-                taskSolution={taskSolutionsByUserAndTaskId.get(`${student.id}|${task.id}`)}
-                taskId={task.id}
-              />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </Table.Body>
-  </Table>
-)
-
-
-const TaskStatus = ({ courseId, sessionSlug, taskSolution, taskId }) => {
+function TaskStatus({ courseId, sessionSlug, taskSolution, taskId }) {
   if (!taskSolution) {
     return '·'
   }

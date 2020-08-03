@@ -44,6 +44,7 @@ type Course implements Node {
 
 type Session implements Node {
   id: ID!
+  courseId: String
   slug: String
   date: String
   titleHTML: String
