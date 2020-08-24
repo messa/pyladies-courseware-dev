@@ -164,7 +164,7 @@ export default createFragmentContainer(TaskReviewLessonSummary, {
         taskItemId
         number
         submit
-        allSolution {
+        allSolutions {
           lastAction
         }
       }

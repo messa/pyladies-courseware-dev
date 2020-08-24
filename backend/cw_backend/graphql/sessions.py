@@ -84,6 +84,20 @@ async def get_task_my_solution(task_item, info):
     return solution
 
 
+async def get_task_all_solutions(task_item, info):
+    if not task_item.submit:
+        return None
+    model = info.context['request'].app['model']
+    session = await get_session(info.context['request'])
+    if not session.get('user'):
+        raise None
+    # TODO pouze pro kouce a adminy
+    solutions = await model.task_solutions.find_by_course_and_task_ids(
+        course_id=task_item.course_id,
+        task_ids=[task_item.id])
+    return solutions
+
+
 TaskItem = GraphQLObjectType(
     name='TaskItem',
     fields={
@@ -102,6 +116,9 @@ TaskItem = GraphQLObjectType(
         'mySolution': GraphQLField(
             TaskSolution,
             resolve=get_task_my_solution),
+        'allSolutions': GraphQLField(
+            GraphQLList(TaskSolution),
+            resolve=get_task_all_solutions),
     })
 
 
@@ -129,5 +146,4 @@ Session = GraphQLObjectType(
         'taskItems': GraphQLField(
             GraphQLList(TaskItem),
             resolve=lambda s, _: s.task_items),
-
     })

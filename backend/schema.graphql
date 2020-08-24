@@ -68,6 +68,7 @@ type TaskItem {
   mandatory: Boolean
   submit: Boolean
   mySolution: TaskSolution
+  allSolutions: [TaskSolution]
 }
 
 type TaskSolution {
