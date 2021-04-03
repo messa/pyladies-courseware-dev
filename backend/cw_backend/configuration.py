@@ -33,6 +33,7 @@ class Configuration:
         self.google_oauth2 = OAuth2('google', cfg)
         self.allow_dev_login = bool(os.environ.get('ALLOW_DEV_LOGIN'))
         self.mongodb = MongoDB(cfg)
+        self.mailgun = Mailgun(cfg.get('mailgun') or {})
 
 
 class OAuth2:
@@ -65,3 +66,14 @@ class MongoDB:
 
 def db_name_from_uri(mongo_uri):
     return pymongo.uri_parser.parse_uri(mongo_uri)['database']
+
+
+class Mailgun:
+
+    def __init__(self, cfg):
+        self.api_key = os.environ.get('MAILGUN_API_KEY') or cfg.get('api_key')
+        self.api_base_url = os.environ.get('MAILGUN_API_BASE_URL') or cfg.get('api_base_url')
+
+    @property
+    def enabled(self):
+        return bool(self.api_key and self.api_base_url)
